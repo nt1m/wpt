@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html class="reftest-wait">
+<link rel="help" href="https://drafts.csswg.org/css-backgrounds-3/#background-color">
+<link rel="match" href="background-color-animation-repaint-anim-changed-after-start-ref.html">
+<style>
+.container {
+  width: 100px;
+  height: 100px;
+  animation: bgcolor 100ms steps(2) -45ms;
+}
+@keyframes bgcolor {
+  0% { background-color: red; }
+  100% { background-color: green; }
+}
+</style>
+<script src="/common/reftest-wait.js"></script>
+<body>
+<div class="container" id="target"></div>
+
+<script>
+var animation = document.getAnimations()[0];
+requestAnimationFrame(() => {
+  animation.effect.setKeyframes(
+    { backgroundColor: ['red', 'blue'] }
+  );
+  const waitForAnimationColorChange = () => {
+    if (animation.currentTime > 50)
+      requestAnimationFrame(takeScreenshot);
+    else
+      requestAnimationFrame(waitForAnimationColorChange);
+  };
+  requestAnimationFrame(waitForAnimationColorChange);
+});
+</script>
+</body>
+</html>
