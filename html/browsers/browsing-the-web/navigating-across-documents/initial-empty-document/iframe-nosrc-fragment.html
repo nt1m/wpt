@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<title>Fragment navigations on initial empty document on iframe without src attribute</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="resources/helpers.js"></script>
+<body></body>
+<script>
+"use strict";
+const url1 = "about:blank#1";
+const url2 = "/common/blank.html?2";
+
+promise_test(async t => {
+  const startingHistoryLength = history.length;
+  const iframe = insertIframe(t);
+  assert_equals(history.length, startingHistoryLength, "Inserting the iframe with initial empty document must not change history.length");
+
+  iframe.src = url1;
+  assert_equals(iframe.contentWindow.location.href, url1);
+  assert_equals(history.length, startingHistoryLength, "history.length must not change after fragment navigation within the initial empty document");
+
+  iframe.src = url2;
+  await waitForLoad(t, iframe, url2);
+  assert_equals(history.length, startingHistoryLength, "history.length must not change after normal navigation from initial empty document");
+}, "Navigating within the initial empty document then to a different document with src");
+
+promise_test(async t => {
+  const startingHistoryLength = history.length;
+  const iframe = insertIframe(t);
+  assert_equals(history.length, startingHistoryLength, "Inserting the iframe with initial empty document must not change history.length");
+
+  iframe.contentWindow.location.href = url1;
+  assert_equals(iframe.contentWindow.location.href, url1);
+  assert_equals(history.length, startingHistoryLength, "history.length must not change after fragment navigation within the initial empty document");
+
+  iframe.contentWindow.location.href = url2;
+  await waitForLoad(t, iframe, url2);
+  assert_equals(history.length, startingHistoryLength, "history.length must not change after normal navigation from initial empty document");
+}, "Navigating within the initial empty document then to a different document with location.href");
+
+promise_test(async t => {
+  const startingHistoryLength = history.length;
+  const iframe = insertIframe(t);
+  assert_equals(history.length, startingHistoryLength, "Inserting the iframe with initial empty document must not change history.length");
+
+  iframe.contentWindow.location.assign(url1);
+  assert_equals(iframe.contentWindow.location.href, url1);
+  assert_equals(history.length, startingHistoryLength, "history.length must not change after fragment navigation within the initial empty document");
+
+  iframe.contentWindow.location.assign(url2);
+  await waitForLoad(t, iframe, url2);
+  assert_equals(history.length, startingHistoryLength, "history.length must not change after normal navigation from initial empty document");
+}, "Navigating within the initial empty document then to a different document with location.assign");
+
+
+promise_test(async t => {
+  const startingHistoryLength = history.length;
+  const iframe = insertIframe(t);
+  assert_equals(history.length, startingHistoryLength, "Inserting the iframe with initial empty document must not change history.length");
+
+  iframe.contentWindow.open(url1, "_self");
+  assert_equals(iframe.contentWindow.location.href, url1);
+  assert_equals(history.length, startingHistoryLength, "history.length must not change after fragment navigation within the initial empty document");
+
+  iframe.contentWindow.open(url2, "_self");
+  await waitForLoad(t, iframe, url2);
+  assert_equals(history.length, startingHistoryLength, "history.length must not change after normal navigation from initial empty document");
+}, "Navigating within the initial empty document then to a different document with window.open");
+
+promise_test(async t => {
+  const startingHistoryLength = history.length;
+  const iframe = insertIframe(t);
+  assert_equals(history.length, startingHistoryLength, "Inserting the iframe with initial empty document must not change history.length");
+
+  const a1 = iframe.contentDocument.createElement("a");
+  a1.href = url1;
+  iframe.contentDocument.body.appendChild(a1);
+  a1.click();
+  assert_equals(iframe.contentWindow.location.href, url1);
+  assert_equals(history.length, startingHistoryLength, "history.length must not change after fragment navigation within the initial empty document");
+
+  const a2 = iframe.contentDocument.createElement("a");
+  a2.href = url2;
+  iframe.contentDocument.body.appendChild(a2);
+  a2.click();
+  await waitForLoad(t, iframe, url2);
+  assert_equals(history.length, startingHistoryLength, "history.length must not change after normal navigation from initial empty document");
+}, "Navigating within the initial empty document then to a different document with link click");
+</script>
