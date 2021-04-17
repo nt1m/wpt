@@ -1,0 +1,27 @@
+<!doctype html>
+<meta name="timeout" content="long">
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="/common/PrefixedLocalStorage.js"></script>
+<script>
+var prefixedLocalStorage;
+setup(() => prefixedLocalStorage = new PrefixedLocalStorageTest());
+async_test(t => {
+  t.add_cleanup(() => prefixedLocalStorage.cleanup());
+  prefixedLocalStorage.onSet('result', t.step_func_done(e => {
+      assert_array_equals(JSON.parse(e.newValue), [
+          'window.pagehide.persisted',
+          'document.visibilitychange',
+          'window.visibilitychange',
+          // document.freeze/resume are not fired on Firefox.
+          // 'document.freeze',
+          // 'document.resume',
+          'document.visibilitychange',
+          'window.visibilitychange',
+          'window.pageshow.persisted']);
+  }));
+  window.open(prefixedLocalStorage.url('resources/events.sub.html'),
+    '_blank',
+    'noopener');
+}, 'fox');
+</script>
